@@ -30,22 +30,16 @@ public class Hash {
 		// convert the hex into BigInteger
 		
 		// return the BigInteger
-
+		MessageDigest messageDigest = null;
 		try {
-			MessageDigest messageDigest = MessageDigest.getInstance("MD5");
-			byte[] dig = messageDigest.digest(entity.getBytes(StandardCharsets.UTF_8));
-			StringBuffer stringBuffer = new StringBuffer();
-			for (int i = 0; i < dig.length; i++){
-				stringBuffer.append(byteToHex(dig[i]));
-			}
-
-			String hashvalue = stringBuffer.toString();
-			hashint = new BigInteger(hashvalue, 16);
+			messageDigest = MessageDigest.getInstance("MD5");
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		}
-
-
+		messageDigest.update(entity.getBytes(StandardCharsets.UTF_8));
+		byte[] digest = messageDigest.digest();
+		String hash = toHex(digest);
+		hashint = new BigInteger(hash, 16);
 		return hashint;
 	}
 
