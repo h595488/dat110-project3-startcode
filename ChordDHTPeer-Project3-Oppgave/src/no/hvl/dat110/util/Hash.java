@@ -9,6 +9,7 @@ package no.hvl.dat110.util;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -29,10 +30,31 @@ public class Hash {
 		// convert the hex into BigInteger
 		
 		// return the BigInteger
-		
+
+		try {
+			MessageDigest messageDigest = MessageDigest.getInstance("MD5");
+			byte[] dig = messageDigest.digest(entity.getBytes(StandardCharsets.UTF_8));
+			StringBuffer stringBuffer = new StringBuffer();
+			for (int i = 0; i < dig.length; i++){
+				stringBuffer.append(byteToHex(dig[i]));
+			}
+			String hashvalue = stringBuffer.toString();
+			hashint = new BigInteger(hashvalue, 16);
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+
+
 		return hashint;
 	}
-	
+
+	public static String byteToHex(byte a){
+		char[] hexdigits = new char[2];
+		hexdigits[0] = Character.forDigit((a >> 4) & 0xf, 16);
+		hexdigits[1] = Character.forDigit((a & 0xf), 16);
+		return new String(hexdigits);
+	}
+
 	public static BigInteger addressSize() {
 		
 		// Task: compute the address size of MD5
