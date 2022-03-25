@@ -19,6 +19,7 @@ import java.util.Random;
 import java.util.Set;
 
 import no.hvl.dat110.middleware.Message;
+import no.hvl.dat110.middleware.Node;
 import no.hvl.dat110.rpc.interfaces.NodeInterface;
 import no.hvl.dat110.util.Hash;
 
@@ -64,6 +65,11 @@ public class FileManager {
 		
 		// store the hash in the replicafiles array.
 
+		for (int i = 0; i < numReplicas; i++){
+			String replicated = filename + i;
+			hash = Hash.hashOf(replicated);
+			replicafiles[i] = hash;
+		}
 	}
 	
     /**
@@ -89,7 +95,19 @@ public class FileManager {
     	// call the saveFileContent() on the successor
     	
     	// increment counter
-    	
+    	Random random = new Random();
+		int index = random.nextInt(Util.numReplicas - 1);
+		createReplicaFiles();
+		for (BigInteger bigInteger : replicafiles){
+			NodeInterface nodeInterface = chordnode.findSuccessor(bigInteger);
+			nodeInterface.addKey(bigInteger);
+			if (counter == index){
+				nodeInterface.saveFileContent(filename, nodeInterface.getNodeID(), bytesOfFile, true);
+			} else{
+				nodeInterface.saveFileContent(filename, nodeInterface.getNodeID(), bytesOfFile, false);
+				counter++;
+			}
+		}
     		
 		return counter;
     }
@@ -115,7 +133,13 @@ public class FileManager {
 		// get the metadata (Message) of the replica from the successor, s (i.e. active peer) of the file
 		
 		// save the metadata in the set succinfo.
-		
+
+		createReplicaFiles();
+		for (BigInteger bigInteger: replicafiles){
+			NodeInterface nodeInterface = chordnode.findSuccessor(bigInteger);
+			succinfo.add(nodeInterface.getFilesMetadata(nodeInterface.getNodeID()));
+		}
+
 		this.activeNodesforFile = succinfo;
 		
 		return succinfo;
@@ -136,7 +160,17 @@ public class FileManager {
 		// use the primaryServer boolean variable contained in the Message class to check if it is the primary or not
 		
 		// return the primary
-		
+		for (Message message: activeNodesforFile){
+			if(message.isPrimaryServer()){
+				try {
+					return new Node(message.getNameOfFile(), message.getPort());
+				} catch (RemoteException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+
 		return null; 
 	}
 	
