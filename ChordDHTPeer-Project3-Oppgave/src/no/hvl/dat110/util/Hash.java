@@ -43,12 +43,7 @@ public class Hash {
 		return hashint;
 	}
 
-	public static String byteToHex(byte a){
-		char[] hexdigits = new char[2];
-		hexdigits[0] = Character.forDigit((a >> 4) & 0xf, 16);
-		hexdigits[1] = Character.forDigit((a & 0xf), 16);
-		return new String(hexdigits);
-	}
+
 
 	public static BigInteger addressSize() {
 		
@@ -61,9 +56,13 @@ public class Hash {
 		// compute the address size = 2 ^ number of bits
 		
 		// return the address size
-
+		try {
+			digestLength = MessageDigest.getInstance("MD5").getDigestLength();
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
 		BigInteger size = new BigInteger("2");
-		return size.pow(bitSize());
+		return size.pow(digestLength*8);
 	}
 	
 	public static int bitSize() {

@@ -43,8 +43,19 @@ public class Util {
 		
 		// implement: read the descriptions above
 		boolean cond = false;
-
-		
+		BigInteger addressSize = Hash.addressSize();
+		// Sjekk om lower er større enn upper
+		if (lower.compareTo(upper) > 0 ){
+			// Sjekk om id er mindre eller lik upper
+			if (id.compareTo(upper) <= 0 ){
+				id = id.add(addressSize);
+			}
+			upper = upper.add(addressSize);
+		}
+		// Sjekker om id ligger mellom lower og upper
+		if (lower.compareTo(id) <= 0 && id.compareTo(upper) <= 0){
+			cond = true;
+		}
 		return cond;
 	}
 	
